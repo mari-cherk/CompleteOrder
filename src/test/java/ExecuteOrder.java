@@ -12,12 +12,14 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +28,96 @@ import java.util.Random;
 public class ExecuteOrder {
 
     WebDriver driver = null;
-    String quantitiesOfProductBefor;
+    String browser;
+    String quantitiesOfProductBefore;
     String quantitiesOfProductAfter;
 
-    @Test
-    public void orderOfProduct() {
-        driver = getDriver("chrome");
+    @Parameters({"browser"})
+    @BeforeClass
+    public void getBrowser(String browser){
+        driver = getDriver("browser");
+    }
 
+    @Test
+    public void checkSite(){
         driver.manage().window().maximize();
         driver.get("http://prestashop-automation.qatestlab.com.ua/");
         WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("products")));
+
+        if(browser == "mobile"){
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"material-icons d-inline\"]")));
+            if(driver.findElements(By.xpath("//*[@class=\"material-icons d-inline\"]")).size()>0){
+                System.out.println("Hamburger button is displayed for mobile");
+            }else {
+                System.out.println("Hamburger button isn't displayed for mobile");
+            }
+
+            if(driver.findElements(By.xpath("//*[@class=\"logo img-responsive\"]")).size()>0){
+                System.out.println("Logo is displayed for mobile");
+            }else {
+                System.out.println("Logo isn't displayed for mobile");
+            }
+
+            if(driver.findElements(By.xpath("//*[@title=\"Войти в учетную запись\"]")).size()>0){
+                System.out.println("Login button is displayed for mobile");
+            }else {
+                System.out.println("Login button isn't displayed for mobile");
+            }
+
+            if(driver.findElements(By.xpath("//*[@class=\"material-icons shopping-cart\"]")).size()>0){
+                System.out.println("Cart button is displayed for mobile");
+            }else {
+                System.out.println("Cart button isn't displayed for mobile");
+            }
+        }
+        else {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"logo img-responsive\"]")));
+            if(driver.findElements(By.xpath("//*[@class=\"logo img-responsive\"]")).size()>0){
+                System.out.println("Logo is displayed for desktop");
+            }else {
+                System.out.println("Logo isn't displayed for desktop");
+            }
+
+            if(driver.findElements(By.xpath("//*[@id=\"category-3\"]/a")).size()>0){
+                System.out.println("WOMEN dropdown is displayed for desktop");
+            }else {
+                System.out.println("WOMEN dropdown isn't displayed for desktop");
+            }
+
+            if(driver.findElements(By.xpath("//*[@class=\"language-selector dropdown js-dropdown\"]")).size()>0){
+                System.out.println("Language dropdown is displayed for desktop");
+            }else {
+                System.out.println("Language dropdown isn't displayed for desktop");
+            }
+
+            if(driver.findElements(By.xpath("//*[@class=\"currency-selector dropdown js-dropdown\"]")).size()>0){
+                System.out.println("Currency dropdown is displayed for desktop");
+            }else {
+                System.out.println("Currency dropdown isn't displayed for desktop");
+            }
+
+            if(driver.findElements(By.xpath("//*[@id=\"_desktop_user_info\"]/div/a")).size()>0){
+                System.out.println("Login button is displayed for desktop");
+            }else {
+                System.out.println("Login button isn't displayed for desktop");
+            }
+
+            if(driver.findElements(By.xpath("//*[@class=\"blockcart cart-preview inactive\"]")).size()>0){
+                System.out.println("Cart button is displayed for desktop");
+            }else {
+                System.out.println("Cart button isn't displayed for desktop");
+            }
+        }
+    }
+
+    @Test
+    public void orderOfProduct(){
+        //driver = getDriver("chrome");
+
+        //driver.manage().window().maximize();
+        //driver.get("http://prestashop-automation.qatestlab.com.ua/");
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("products")));
 
         WebElement allProducts = driver.findElement(By.xpath("//*[@id=\"content\"]/section/a"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", allProducts);
@@ -56,8 +137,6 @@ public class ExecuteOrder {
 
         String urlOfProduct = driver.getCurrentUrl();
 
-        //WebElement addToCartButton = driver.findElement(By.xpath("//button[@class=\"btn btn-primary add-to-cart\"]"));
-        //addToCartButton.click();
         String nameOfDesiredProduct = driver.findElement(By.xpath("//h1[@itemprop=\"name\"]")).getText().toUpperCase();
         String priceOfDesiredProduct = driver.findElement(By.xpath("//*[@itemprop=\"price\"]")).getText();
 
@@ -67,18 +146,11 @@ public class ExecuteOrder {
             productDetailesTab.click();
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
 
-            quantitiesOfProductBefor = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D","");
+            quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D","");
         }
         else {
-            quantitiesOfProductBefor = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D","");
+            quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D","");
         }
-
-        //WebElement productDetailesTab = driver.findElement(By.linkText("Подробнее о товаре"));
-        //productDetailesTab.click();
-
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
-
-        //String QuantitiesOfProductBefor = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D","");
 
         WebElement placeOrderButton = driver.findElement(By.xpath("//*[@class=\"btn btn-primary add-to-cart\"]"));
         placeOrderButton.click();
@@ -128,11 +200,6 @@ public class ExecuteOrder {
 
         WebElement continueButton = driver.findElement(By.xpath("//button[@data-link-action=\"register-new-customer\"]"));
         continueButton.click();
-
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"checkout-addresses-step\"]/div/div/form/p[2]/a")));
-
-        //WebElement addAddressLink = driver.findElement(By.xpath("//*[@id=\"checkout-addresses-step\"]/div/div/form/p[2]/a"));
-        //addAddressLink.click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name=\"address1\"]")));
 
@@ -196,24 +263,11 @@ public class ExecuteOrder {
             quantitiesOfProductAfter = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D","");
         }
 
-        int quantitiesOfProductBeforeInt = Integer.parseInt(quantitiesOfProductBefor);
+        int quantitiesOfProductBeforeInt = Integer.parseInt(quantitiesOfProductBefore);
         int quantity = quantitiesOfProductBeforeInt - 1;
         String quantitiesOfProductBeforeString = Integer.toString(quantity);
 
         Assert.assertEquals(quantitiesOfProductBeforeString,quantitiesOfProductAfter, "Wrong quantity");
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     }
@@ -281,6 +335,11 @@ public class ExecuteOrder {
 
     public boolean elemetIsPresent(By by){
         return driver.findElements(by).size() > 0;
+    }
+
+    @AfterClass
+    public void closeBrowser(){
+        driver.quit();
     }
 
 }
