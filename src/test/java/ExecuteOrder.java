@@ -9,13 +9,11 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -27,15 +25,24 @@ import java.util.Random;
 
 public class ExecuteOrder {
 
-    WebDriver driver = null;
+    EventFiringWebDriver driver = null;
     String browser;
     String quantitiesOfProductBefore;
     String quantitiesOfProductAfter;
 
-    @Parameters({"browser"})
+    //@Parameters({"browser"})
+    //@BeforeClass
+   // public void getBrowser(String browser){
+        //driver = getDriver("browser");
+    //}
+
     @BeforeClass
-    public void getBrowser(String browser){
-        driver = getDriver("browser");
+    @Parameters({"browser"})
+    public void setBrowser(String browser) {
+        driver = new EventFiringWebDriver(DriverManager.getDriver("browser"));
+        MyWebDriverListener listener = new MyWebDriverListener();
+        driver.register(listener);
+
     }
 
     @Test
@@ -272,7 +279,7 @@ public class ExecuteOrder {
 
     }
 
-
+/*
     public static WebDriver getDriver(String browser) {
         switch (browser) {
             case "firefox":
@@ -331,7 +338,7 @@ public class ExecuteOrder {
                         new File(ExecuteOrder.class.getResource("/chromedriver.exe").getFile()).getPath());
                 return new ChromeDriver();
         }
-    }
+    }*/
 
     public boolean elemetIsPresent(By by){
         return driver.findElements(by).size() > 0;
