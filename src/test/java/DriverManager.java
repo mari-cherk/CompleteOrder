@@ -19,20 +19,20 @@ public class DriverManager {
             case "firefox":
                 System.setProperty(
                         "webdriver.gecko.driver",
-                        new File(ExecuteOrder.class.getResource("/geckodriver.exe").getFile()).getPath());
+                        new File(DriverManager.class.getResource("/geckodriver.exe").getFile()).getPath());
                 return new FirefoxDriver();
 
             case "ie":
             case "internet explorer":
                 System.setProperty(
                         "webdriver.ie.driver",
-                        new File(ExecuteOrder.class.getResource("/IEDriverServer.exe").getFile()).getPath());
+                        new File(DriverManager.class.getResource("/IEDriverServer.exe").getFile()).getPath());
                 return new InternetExplorerDriver();
 
             case "mobile":
                 System.setProperty(
-                        "webdriver.cgrome.driver",
-                        new File(ExecuteOrder.class.getResource("/chromedriver.exe").getFile()).getPath());
+                        "webdriver.chrome.driver",
+                        new File(DriverManager.class.getResource("/chromedriver.exe").getFile()).getPath());
                 Map<String, String> mobileEmulation = new HashMap<>();
                 mobileEmulation.put("deviceName", "iPhone 6");
 
@@ -69,7 +69,7 @@ public class DriverManager {
             default:
                 System.setProperty(
                         "webdriver.chrome.driver",
-                        new File(ExecuteOrder.class.getResource("/chromedriver.exe").getFile()).getPath());
+                        new File(DriverManager.class.getResource("/chromedriver.exe").getFile()).getPath());
                 return new ChromeDriver();
         }
 

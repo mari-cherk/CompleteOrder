@@ -4,7 +4,7 @@
 <suite name="Suite1" verbose="1" >
 
     <test name="ExecuteOrder Test">
-        <parameter name="browser" value="firefox"/>
+        <parameter name="browser" value="mobile"/>
         <classes>
             <class name="ExecuteOrder"/>
         </classes>

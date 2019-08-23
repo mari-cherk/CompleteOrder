@@ -35,11 +35,11 @@ public class ExecuteOrder {
    // public void getBrowser(String browser){
         //driver = getDriver("browser");
     //}
-
+    //@Parameters({"browser"})
     @BeforeClass
     @Parameters({"browser"})
     public void setBrowser(String browser) {
-        driver = new EventFiringWebDriver(DriverManager.getDriver("browser"));
+        driver = new EventFiringWebDriver(DriverManager.getDriver(browser));
         MyWebDriverListener listener = new MyWebDriverListener();
         driver.register(listener);
 
