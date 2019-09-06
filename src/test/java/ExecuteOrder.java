@@ -26,7 +26,7 @@ import java.util.Random;
 public class ExecuteOrder {
 
     EventFiringWebDriver driver = null;
-    String browser;
+    //String browser;
     String quantitiesOfProductBefore;
     String quantitiesOfProductAfter;
 
@@ -44,14 +44,16 @@ public class ExecuteOrder {
         driver.register(listener);
 
     }
-
+    @Parameters({"browser"})
     @Test
-    public void checkSite(){
+    public void checkSite(String browser){
         driver.manage().window().maximize();
         driver.get("http://prestashop-automation.qatestlab.com.ua/");
         WebDriverWait wait = new WebDriverWait(driver, 10);
 
-        if(browser == "mobile"){
+        System.out.println(driver.manage().window().getSize());
+
+        if(browser.contains("mobile")) {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"material-icons d-inline\"]")));
             if(driver.findElements(By.xpath("//*[@class=\"material-icons d-inline\"]")).size()>0){
                 System.out.println("Hamburger button is displayed for mobile");
@@ -117,166 +119,170 @@ public class ExecuteOrder {
         }
     }
 
+    @Parameters({"browser"})
     @Test
-    public void orderOfProduct(){
-        //driver = getDriver("chrome");
+    public void orderOfProduct(String browser) {
 
-        //driver.manage().window().maximize();
-        //driver.get("http://prestashop-automation.qatestlab.com.ua/");
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("products")));
+        if (browser.contains("mobile")) {
+            System.out.println("This is a mobile");
+        } else {
+            //driver = getDriver("chrome");
 
-        WebElement allProducts = driver.findElement(By.xpath("//*[@id=\"content\"]/section/a"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", allProducts);
-        allProducts.click();
+            //driver.manage().window().maximize();
+            //driver.get("http://prestashop-automation.qatestlab.com.ua/");
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+            //wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("products")));
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("col-md-6")));
+            WebElement allProducts = driver.findElement(By.xpath("//*[@id=\"content\"]/section/a"));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", allProducts);
+            allProducts.click();
 
-        Random random = new Random();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("col-md-6")));
 
-        List <WebElement> listings = driver.findElements(By.xpath("//*[@class=\"h3 product-title\"]"));
-        int numberOfProduct = random.nextInt(listings.size()-1) + 1;
-        System.out.println(numberOfProduct);
-        WebElement requiredlisting = listings.get(numberOfProduct);
-        requiredlisting.click();
+            Random random = new Random();
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@itemprop=\"name\"]")));
+            List<WebElement> listings = driver.findElements(By.xpath("//*[@class=\"h3 product-title\"]"));
+            int numberOfProduct = random.nextInt(listings.size() - 1) + 1;
+            System.out.println(numberOfProduct);
+            WebElement requiredlisting = listings.get(numberOfProduct);
+            requiredlisting.click();
 
-        String urlOfProduct = driver.getCurrentUrl();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@itemprop=\"name\"]")));
 
-        String nameOfDesiredProduct = driver.findElement(By.xpath("//h1[@itemprop=\"name\"]")).getText().toUpperCase();
-        String priceOfDesiredProduct = driver.findElement(By.xpath("//*[@itemprop=\"price\"]")).getText();
+            String urlOfProduct = driver.getCurrentUrl();
 
-        if(elemetIsPresent(By.xpath("//*[@class=\"nav-link\"]"))){
+            String nameOfDesiredProduct = driver.findElement(By.xpath("//h1[@itemprop=\"name\"]")).getText().toUpperCase();
+            String priceOfDesiredProduct = driver.findElement(By.xpath("//*[@itemprop=\"price\"]")).getText();
 
-            WebElement productDetailesTab = driver.findElement(By.xpath("//*[@class=\"nav-link\"]"));
-            productDetailesTab.click();
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
+            if (elemetIsPresent(By.xpath("//*[@class=\"nav-link\"]"))) {
 
-            quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D","");
+                WebElement productDetailesTab = driver.findElement(By.xpath("//*[@class=\"nav-link\"]"));
+                productDetailesTab.click();
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
+
+                quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D", "");
+            } else {
+                quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D", "");
+            }
+
+            WebElement placeOrderButton = driver.findElement(By.xpath("//*[@class=\"btn btn-primary add-to-cart\"]"));
+            placeOrderButton.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"h6 product-name\"]")));
+
+            String quantityOfOrderingProduct = driver.findElement(By.xpath("//*[@id=\"blockcart-modal\"]/div/div/div[2]/div/div[1]/div/div[2]/p[2]")).getText().replaceAll("\\D", "");
+            Assert.assertEquals(quantityOfOrderingProduct, "1", "Wrong quantity");
+
+            String nameOfOrderingProduct = driver.findElement(By.xpath("//*[@class=\"h6 product-name\"]")).getText().toUpperCase();
+            Assert.assertEquals(nameOfDesiredProduct, nameOfOrderingProduct, "Wrong product name");
+
+            String priceOfOrderingProduct = driver.findElement(By.xpath("//*[@id=\"blockcart-modal\"]/div/div/div[2]/div/div[1]/div/div[2]/p[1]")).getText();
+            Assert.assertEquals(priceOfDesiredProduct, priceOfOrderingProduct, "Wrong product price");
+
+            WebElement placingOrderButton = driver.findElement(By.xpath("//*[@class=\"btn btn-primary\"]"));
+            placingOrderButton.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[1]/a")));
+
+            String checkNameOfProduct = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[1]/a")).getText().toUpperCase();
+            String checkPriceOfProduct = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[2]/span")).getText();
+            String checkQuantityOfProduct = driver.findElement(By.xpath("//*[@class=\"js-cart-line-product-quantity form-control\"]")).getAttribute("value");
+
+            Assert.assertEquals(checkNameOfProduct, nameOfDesiredProduct, "Wrong product name");
+            Assert.assertEquals(checkPriceOfProduct, priceOfDesiredProduct, "Wrong product price");
+            Assert.assertEquals(checkQuantityOfProduct, "1", "Wrong quantity of product");
+
+            WebElement makeTheOrder = driver.findElement(By.xpath("//*[@class=\"btn btn-primary\"]"));
+            makeTheOrder.click();
+
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@name=\"firstname\"]")));
+
+            WebElement userNameField = driver.findElement(By.xpath("//*[@name=\"firstname\"]"));
+            userNameField.sendKeys("Mari");
+
+            WebElement userLastnameField = driver.findElement(By.xpath("//*[@name=\"lastname\"]"));
+            userLastnameField.sendKeys("Cherk");
+
+            WebElement emailField = driver.findElement(By.xpath("//*[@id=\"customer-form\"]/section/div[4]/div[1]/input"));
+
+            int n = random.nextInt(100) + 1;
+            String email = "maricherk" + n + "@gmail.com";
+            System.out.println(email);
+            emailField.sendKeys(email);
+
+            WebElement continueButton = driver.findElement(By.xpath("//button[@data-link-action=\"register-new-customer\"]"));
+            continueButton.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name=\"address1\"]")));
+
+            WebElement addressField = driver.findElement(By.xpath("//input[@name=\"address1\"]"));
+            addressField.sendKeys("Lev street, 12");
+
+            WebElement postcodeField = driver.findElement(By.xpath("//input[@name=\"postcode\"]"));
+            postcodeField.sendKeys("50001");
+
+            WebElement cityField = driver.findElement(By.xpath("//input[@name=\"city\"]"));
+            cityField.sendKeys("Krivoy Rog");
+
+            WebElement continue2Button = driver.findElement(By.xpath("//button[@name=\"confirm-addresses\"]"));
+            continue2Button.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@name=\"confirmDeliveryOption\"]")));
+
+            WebElement continue3Button = driver.findElement(By.xpath("//button[@name=\"confirmDeliveryOption\"]"));
+            continue3Button.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"payment-options\"]")));
+
+            WebElement billRadioButton = driver.findElement(By.xpath("//input[@id=\"payment-option-1\"]"));
+            billRadioButton.click();
+            WebElement conditionsToApprove = driver.findElement(By.xpath("//input[@id=\"conditions_to_approve[terms-and-conditions]\"]"));
+            conditionsToApprove.click();
+
+            WebElement continue4Button = driver.findElement(By.xpath("//button[@class=\"btn btn-primary center-block\"]"));
+            continue4Button.click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//i[@class=\"material-icons done\"]")));
+
+            String successfulMessage = driver.findElement(By.xpath("//*[@id=\"content-hook_order_confirmation\"]/div/div/div/h3")).getText().replaceAll("[^а-яА-ЯЁ\\s]", "");
+
+            Assert.assertEquals(successfulMessage, "ВАШ ЗАКАЗ ПОДТВЕРЖДЁН", "Wrong message");
+
+            String nameOfProductOrdered = driver.findElement(By.xpath("//*[@id=\"order-items\"]/div/div/div[2]/span")).getText().split(" -")[0].toUpperCase();
+            System.out.println(nameOfProductOrdered);
+            Assert.assertEquals(nameOfProductOrdered, nameOfDesiredProduct, "Wrong ordered product name");
+
+            String quantityOrderedProduct = driver.findElement(By.xpath("//div[@class=\"col-xs-2\"]")).getText();
+            Assert.assertEquals(quantityOrderedProduct, "1", "Wrong quantity");
+
+            String priceOrderedProduct = driver.findElement(By.xpath("//div[@class=\"col-xs-5 text-xs-right bold\"]")).getText();
+            Assert.assertEquals(priceOrderedProduct, priceOfDesiredProduct, "Wrong price");
+
+            driver.get(urlOfProduct);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@itemprop=\"name\"]")));
+
+
+            if (elemetIsPresent(By.xpath("//*[@class=\"nav-link\"]"))) {
+
+                WebElement productDetailesTab = driver.findElement(By.xpath("//*[@class=\"nav-link\"]"));
+                productDetailesTab.click();
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
+
+                quantitiesOfProductAfter = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D", "");
+            } else {
+                quantitiesOfProductAfter = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D", "");
+            }
+
+            int quantitiesOfProductBeforeInt = Integer.parseInt(quantitiesOfProductBefore);
+            int quantity = quantitiesOfProductBeforeInt - 1;
+            String quantitiesOfProductBeforeString = Integer.toString(quantity);
+
+            Assert.assertEquals(quantitiesOfProductBeforeString, quantitiesOfProductAfter, "Wrong quantity");
+
+
         }
-        else {
-            quantitiesOfProductBefore = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D","");
-        }
-
-        WebElement placeOrderButton = driver.findElement(By.xpath("//*[@class=\"btn btn-primary add-to-cart\"]"));
-        placeOrderButton.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"h6 product-name\"]")));
-
-        String quantityOfOrderingProduct = driver.findElement(By.xpath("//*[@id=\"blockcart-modal\"]/div/div/div[2]/div/div[1]/div/div[2]/p[2]")).getText().replaceAll("\\D","");
-        Assert.assertEquals(quantityOfOrderingProduct,"1","Wrong quantity");
-
-        String nameOfOrderingProduct = driver.findElement(By.xpath("//*[@class=\"h6 product-name\"]")).getText().toUpperCase();
-        Assert.assertEquals(nameOfDesiredProduct,nameOfOrderingProduct,"Wrong product name");
-
-        String priceOfOrderingProduct = driver.findElement(By.xpath("//*[@id=\"blockcart-modal\"]/div/div/div[2]/div/div[1]/div/div[2]/p[1]")).getText();
-        Assert.assertEquals(priceOfDesiredProduct,priceOfOrderingProduct,"Wrong product price");
-
-        WebElement placingOrderButton = driver.findElement(By.xpath("//*[@class=\"btn btn-primary\"]"));
-        placingOrderButton.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[1]/a")));
-
-        String checkNameOfProduct = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[1]/a")).getText().toUpperCase();
-        String checkPriceOfProduct = driver.findElement(By.xpath("//*[@id=\"main\"]/div/div[1]/div[1]/div[2]/ul/li/div/div[2]/div[2]/span")).getText();
-        String checkQuantityOfProduct = driver.findElement(By.xpath("//*[@class=\"js-cart-line-product-quantity form-control\"]")).getAttribute("value");
-
-        Assert.assertEquals(checkNameOfProduct, nameOfDesiredProduct, "Wrong product name");
-        Assert.assertEquals(checkPriceOfProduct,priceOfDesiredProduct, "Wrong product price");
-        Assert.assertEquals(checkQuantityOfProduct, "1", "Wrong quantity of product");
-
-        WebElement makeTheOrder = driver.findElement(By.xpath("//*[@class=\"btn btn-primary\"]"));
-        makeTheOrder.click();
-
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@name=\"firstname\"]")));
-
-        WebElement userNameField = driver.findElement(By.xpath("//*[@name=\"firstname\"]"));
-        userNameField.sendKeys("Mari");
-
-        WebElement userLastnameField = driver.findElement(By.xpath("//*[@name=\"lastname\"]"));
-        userLastnameField.sendKeys("Cherk");
-
-        WebElement emailField = driver.findElement(By.xpath("//*[@id=\"customer-form\"]/section/div[4]/div[1]/input"));
-
-        int n = random.nextInt(100)+1;
-        String email = "maricherk"+n+"@gmail.com";
-        System.out.println(email);
-        emailField.sendKeys(email);
-
-        WebElement continueButton = driver.findElement(By.xpath("//button[@data-link-action=\"register-new-customer\"]"));
-        continueButton.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name=\"address1\"]")));
-
-        WebElement addressField = driver.findElement(By.xpath("//input[@name=\"address1\"]"));
-        addressField.sendKeys("Lev street, 12");
-
-        WebElement postcodeField = driver.findElement(By.xpath("//input[@name=\"postcode\"]"));
-        postcodeField.sendKeys("50001");
-
-        WebElement cityField = driver.findElement(By.xpath("//input[@name=\"city\"]"));
-        cityField.sendKeys("Krivoy Rog");
-
-        WebElement continue2Button = driver.findElement(By.xpath("//button[@name=\"confirm-addresses\"]"));
-        continue2Button.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@name=\"confirmDeliveryOption\"]")));
-
-        WebElement continue3Button = driver.findElement(By.xpath("//button[@name=\"confirmDeliveryOption\"]"));
-        continue3Button.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@class=\"payment-options\"]")));
-
-        WebElement billRadioButton = driver.findElement(By.xpath("//input[@id=\"payment-option-1\"]"));
-        billRadioButton.click();
-        WebElement conditionsToApprove = driver.findElement(By.xpath("//input[@id=\"conditions_to_approve[terms-and-conditions]\"]"));
-        conditionsToApprove.click();
-
-        WebElement continue4Button = driver.findElement(By.xpath("//button[@class=\"btn btn-primary center-block\"]"));
-        continue4Button.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//i[@class=\"material-icons done\"]")));
-
-        String successfulMessage = driver.findElement(By.xpath("//*[@id=\"content-hook_order_confirmation\"]/div/div/div/h3")).getText().replaceAll("[^а-яА-ЯЁ\\s]", "");
-
-        Assert.assertEquals(successfulMessage,"ВАШ ЗАКАЗ ПОДТВЕРЖДЁН","Wrong message");
-
-        String nameOfProductOrdered = driver.findElement(By.xpath("//*[@id=\"order-items\"]/div/div/div[2]/span")).getText().split(" -")[0].toUpperCase();
-        System.out.println(nameOfProductOrdered);
-        Assert.assertEquals(nameOfProductOrdered,nameOfDesiredProduct,"Wrong ordered product name");
-
-        String quantityOrderedProduct = driver.findElement(By.xpath("//div[@class=\"col-xs-2\"]")).getText();
-        Assert.assertEquals(quantityOrderedProduct,"1","Wrong quantity");
-
-        String priceOrderedProduct = driver.findElement(By.xpath("//div[@class=\"col-xs-5 text-xs-right bold\"]")).getText();
-        Assert.assertEquals(priceOrderedProduct,priceOfDesiredProduct,"Wrong price");
-
-        driver.get(urlOfProduct);
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@itemprop=\"name\"]")));
-
-
-        if(elemetIsPresent(By.xpath("//*[@class=\"nav-link\"]"))){
-
-            WebElement productDetailesTab = driver.findElement(By.xpath("//*[@class=\"nav-link\"]"));
-            productDetailesTab.click();
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"product-details\"]/div[3]/span")));
-
-            quantitiesOfProductAfter = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[3]/span")).getText().replaceAll("\\D","");
-        }
-        else {
-            quantitiesOfProductAfter = driver.findElement(By.xpath("//*[@id=\"product-details\"]/div[1]/span")).getText().replaceAll("\\D","");
-        }
-
-        int quantitiesOfProductBeforeInt = Integer.parseInt(quantitiesOfProductBefore);
-        int quantity = quantitiesOfProductBeforeInt - 1;
-        String quantitiesOfProductBeforeString = Integer.toString(quantity);
-
-        Assert.assertEquals(quantitiesOfProductBeforeString,quantitiesOfProductAfter, "Wrong quantity");
-
-
     }
 
 /*
