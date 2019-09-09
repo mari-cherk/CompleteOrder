@@ -1,26 +1,12 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.ie.InternetExplorerOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class ExecuteOrder {
@@ -30,12 +16,6 @@ public class ExecuteOrder {
     String quantitiesOfProductBefore;
     String quantitiesOfProductAfter;
 
-    //@Parameters({"browser"})
-    //@BeforeClass
-   // public void getBrowser(String browser){
-        //driver = getDriver("browser");
-    //}
-    //@Parameters({"browser"})
     @BeforeClass
     @Parameters({"browser"})
     public void setBrowser(String browser) {
@@ -126,12 +106,8 @@ public class ExecuteOrder {
         if (browser.contains("mobile")) {
             System.out.println("This is a mobile");
         } else {
-            //driver = getDriver("chrome");
 
-            //driver.manage().window().maximize();
-            //driver.get("http://prestashop-automation.qatestlab.com.ua/");
             WebDriverWait wait = new WebDriverWait(driver, 10);
-            //wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("products")));
 
             WebElement allProducts = driver.findElement(By.xpath("//*[@id=\"content\"]/section/a"));
             ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", allProducts);
@@ -285,66 +261,7 @@ public class ExecuteOrder {
         }
     }
 
-/*
-    public static WebDriver getDriver(String browser) {
-        switch (browser) {
-            case "firefox":
-                System.setProperty(
-                        "webdriver.gecko.driver",
-                        new File(ExecuteOrder.class.getResource("/geckodriver.exe").getFile()).getPath());
-                return new FirefoxDriver();
 
-            case "ie":
-            case "internet explorer":
-                System.setProperty(
-                        "webdriver.ie.driver",
-                        new File(ExecuteOrder.class.getResource("/IEDriverServer.exe").getFile()).getPath());
-                return new InternetExplorerDriver();
-
-            case "mobile":
-                System.setProperty(
-                        "webdriver.cgrome.driver",
-                        new File(ExecuteOrder.class.getResource("/chromedriver.exe").getFile()).getPath());
-                Map<String, String> mobileEmulation = new HashMap<>();
-                mobileEmulation.put("deviceName", "iPhone 6");
-
-                ChromeOptions mobChromeOptions = new ChromeOptions();
-                mobChromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
-                return new ChromeDriver(mobChromeOptions);
-
-            case "remote-firefox":
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                try {
-                    return new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), firefoxOptions);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-            case "remote-ie":
-                InternetExplorerOptions ieOptions = new InternetExplorerOptions();
-                try {
-                    return new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), ieOptions);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-            case "remote-chrome":
-                ChromeOptions chromeOptions = new ChromeOptions();
-                try {
-                    return new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), chromeOptions);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-
-            case "chrome":
-            default:
-                System.setProperty(
-                        "webdriver.chrome.driver",
-                        new File(ExecuteOrder.class.getResource("/chromedriver.exe").getFile()).getPath());
-                return new ChromeDriver();
-        }
-    }*/
 
     public boolean elemetIsPresent(By by){
         return driver.findElements(by).size() > 0;
